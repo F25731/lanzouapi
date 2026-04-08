@@ -29,6 +29,13 @@ def test_source_login_test_endpoint(client):
     assert body["status"] == "active"
 
 
+def test_admin_panel_contains_ilanzou_openlist_controls(client):
+    response = client.get("/admin/panel")
+    assert response.status_code == 200
+    assert "ilanzou_openlist" in response.text
+    assert "邮箱版默认" in response.text
+
+
 def test_source_login_test_endpoint_supports_lanzou_sdk(client, monkeypatch):
     provider = provider_registry.get("lanzou_sdk")
 
@@ -52,6 +59,35 @@ def test_source_login_test_endpoint_supports_lanzou_sdk(client, monkeypatch):
                     "phpdisk_info": "token-abc",
                 }
             },
+            "rate_limit_per_minute": 30,
+            "request_timeout_seconds": 20,
+        },
+    )
+    assert create_response.status_code == 200
+    source_id = create_response.json()["id"]
+
+    login_response = client.post(f"/api/admin/source/{source_id}/login-test")
+    assert login_response.status_code == 200
+    body = login_response.json()
+    assert body["id"] == source_id
+    assert body["success"] is True
+    assert body["status"] == "active"
+
+
+def test_source_login_test_endpoint_supports_ilanzou_openlist(client, monkeypatch):
+    provider = provider_registry.get("ilanzou_openlist")
+
+    monkeypatch.setattr(provider, "login", lambda source: None)
+
+    create_response = client.post(
+        "/api/admin/sources",
+        json={
+            "name": "ilanzou-password-source",
+            "adapter_type": "ilanzou_openlist",
+            "username": "demo@example.com",
+            "password": "secret",
+            "root_folder_id": "0",
+            "config": {},
             "rate_limit_per_minute": 30,
             "request_timeout_seconds": 20,
         },

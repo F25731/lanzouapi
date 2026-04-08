@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict
 
 from app.providers.base import SourceProvider
+from app.providers.ilanzou_openlist import ILanZouOpenListProvider
 from app.providers.lanzou_http import LanzouHttpProvider
 from app.providers.lanzou_sdk import LanzouSdkProvider
 from app.providers.mock_provider import MockSourceProvider
@@ -26,3 +27,4 @@ provider_registry = ProviderRegistry()
 provider_registry.register(MockSourceProvider())
 provider_registry.register(LanzouHttpProvider())
 provider_registry.register(LanzouSdkProvider())
+provider_registry.register(ILanZouOpenListProvider())
