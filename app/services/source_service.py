@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import List
 
 from app.core.config import get_settings
 from app.models.entities import SourceSource
 from app.models.enums import SourceStatus
+from app.providers.registry import provider_registry
 from app.repositories.source_repository import SourceRepository
 from app.schemas.source import SourceCreate
 from app.schemas.source import SourceUpdate
@@ -76,4 +78,21 @@ class SourceService:
             raise LookupError("source not found")
         source.is_enabled = False
         source.status = SourceStatus.DISABLED
+        return self.source_repository.save_source(source)
+
+    def test_login(self, source_id: int) -> SourceSource:
+        source = self.source_repository.get_source(source_id)
+        if source is None:
+            raise LookupError("source not found")
+        provider = provider_registry.get(source.adapter_type)
+        try:
+            provider.login(source)
+            source.last_login_at = datetime.utcnow()
+            source.last_error = None
+            source.status = SourceStatus.ACTIVE
+        except Exception as exc:
+            source.last_error = str(exc)
+            source.status = SourceStatus.ERROR
+            self.source_repository.save_source(source)
+            raise
         return self.source_repository.save_source(source)

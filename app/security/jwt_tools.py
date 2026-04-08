@@ -5,13 +5,13 @@ from datetime import timedelta
 from typing import Dict
 from typing import Optional
 
-import jwt
-
 from app.core.config import get_settings
 from app.core.errors import UnauthorizedError
 
 
 def create_admin_access_token(subject: str, admin_user_id: int) -> str:
+    import jwt
+
     settings = get_settings()
     now = datetime.utcnow()
     payload = {
@@ -31,6 +31,8 @@ def create_admin_access_token(subject: str, admin_user_id: int) -> str:
 
 
 def decode_admin_access_token(token: str) -> Dict:
+    import jwt
+
     settings = get_settings()
     try:
         payload = jwt.decode(

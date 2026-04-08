@@ -12,7 +12,10 @@ from pydantic import Field
 from app.models.entities import File
 from app.models.entities import ScanJob
 from app.models.entities import SourceSource
+from app.models.entities import ApiClient
 from app.utils.serialization import loads_json
+from app.utils.scopes import parse_ip_whitelist
+from app.utils.scopes import parse_scopes
 
 
 class SourceStatusItem(BaseModel):
@@ -147,3 +150,73 @@ class MetricsResponse(BaseModel):
     file_overview: Dict[str, int]
     cache_overview: Dict[str, Any]
     search_backend: Dict[str, Any]
+
+
+class SourceLoginTestResponse(BaseModel):
+    id: int
+    name: str
+    adapter_type: str
+    success: bool
+    status: str
+    last_login_at: Optional[datetime]
+    last_error: Optional[str]
+
+    @classmethod
+    def from_entity(
+        cls,
+        source: SourceSource,
+        *,
+        success: bool,
+    ) -> "SourceLoginTestResponse":
+        return cls(
+            id=source.id,
+            name=source.name,
+            adapter_type=source.adapter_type,
+            success=success,
+            status=source.status.value,
+            last_login_at=source.last_login_at,
+            last_error=source.last_error,
+        )
+
+
+class ApiClientCreateRequest(BaseModel):
+    client_name: str = Field(..., min_length=1, max_length=120)
+    client_type: str = Field(default="robot", min_length=1, max_length=50)
+    scopes: Optional[List[str]] = None
+    rate_limit_per_min: int = Field(default=60, ge=1, le=100000)
+    ip_whitelist: Optional[List[str]] = None
+
+
+class ApiClientRead(BaseModel):
+    id: int
+    client_name: str
+    client_type: str
+    key_prefix: str
+    status: str
+    scopes: List[str]
+    rate_limit_per_min: int
+    ip_whitelist: List[str]
+    last_used_at: Optional[datetime]
+    created_at: datetime
+    updated_at: datetime
+
+    @classmethod
+    def from_entity(cls, client: ApiClient) -> "ApiClientRead":
+        return cls(
+            id=client.id,
+            client_name=client.client_name,
+            client_type=client.client_type,
+            key_prefix=client.key_prefix,
+            status=client.status.value,
+            scopes=parse_scopes(client.scopes),
+            rate_limit_per_min=client.rate_limit_per_min,
+            ip_whitelist=parse_ip_whitelist(client.ip_whitelist),
+            last_used_at=client.last_used_at,
+            created_at=client.created_at,
+            updated_at=client.updated_at,
+        )
+
+
+class ApiClientSecretResponse(BaseModel):
+    client: ApiClientRead
+    api_key: str
