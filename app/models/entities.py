@@ -33,6 +33,10 @@ class TimestampMixin:
     )
 
 
+def _enum_values(enum_cls) -> list[str]:
+    return [item.value for item in enum_cls]
+
+
 class SourceSource(Base, TimestampMixin):
     __tablename__ = "source_sources"
 
@@ -45,7 +49,7 @@ class SourceSource(Base, TimestampMixin):
     root_folder_id = Column(String(120), nullable=True)
     config_json = Column(Text, nullable=True)
     status = Column(
-        Enum(SourceStatus),
+        Enum(SourceStatus, values_callable=_enum_values),
         nullable=False,
         default=SourceStatus.ACTIVE,
     )
@@ -130,7 +134,7 @@ class File(Base, TimestampMixin):
     size_bytes = Column(Integer, nullable=True, index=True)
     share_url = Column(String(1024), nullable=True)
     status = Column(
-        Enum(FileStatus),
+        Enum(FileStatus, values_callable=_enum_values),
         nullable=False,
         default=FileStatus.ACTIVE,
     )
@@ -208,9 +212,13 @@ class ScanJob(Base, TimestampMixin):
         nullable=True,
     )
     target_provider_folder_id = Column(String(120), nullable=True)
-    mode = Column(Enum(ScanMode), nullable=False, default=ScanMode.INCREMENTAL)
+    mode = Column(
+        Enum(ScanMode, values_callable=_enum_values),
+        nullable=False,
+        default=ScanMode.INCREMENTAL,
+    )
     status = Column(
-        Enum(ScanJobStatus),
+        Enum(ScanJobStatus, values_callable=_enum_values),
         nullable=False,
         default=ScanJobStatus.PENDING,
     )
@@ -239,7 +247,7 @@ class ApiClient(Base, TimestampMixin):
     key_prefix = Column(String(40), nullable=False, unique=True)
     api_key_hash = Column(String(255), nullable=False)
     status = Column(
-        Enum(ApiClientStatus),
+        Enum(ApiClientStatus, values_callable=_enum_values),
         nullable=False,
         default=ApiClientStatus.ACTIVE,
     )
@@ -279,7 +287,7 @@ class AdminUser(Base, TimestampMixin):
     username = Column(String(120), nullable=False, unique=True)
     password_hash = Column(String(255), nullable=False)
     status = Column(
-        Enum(AdminUserStatus),
+        Enum(AdminUserStatus, values_callable=_enum_values),
         nullable=False,
         default=AdminUserStatus.ACTIVE,
     )
