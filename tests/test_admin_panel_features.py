@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from app.providers.registry import provider_registry
+
 
 def test_source_login_test_endpoint(client):
     create_response = client.post(
@@ -12,6 +14,44 @@ def test_source_login_test_endpoint(client):
             "password": "demo",
             "root_folder_id": "root",
             "config": {},
+            "rate_limit_per_minute": 30,
+            "request_timeout_seconds": 20,
+        },
+    )
+    assert create_response.status_code == 200
+    source_id = create_response.json()["id"]
+
+    login_response = client.post(f"/api/admin/source/{source_id}/login-test")
+    assert login_response.status_code == 200
+    body = login_response.json()
+    assert body["id"] == source_id
+    assert body["success"] is True
+    assert body["status"] == "active"
+
+
+def test_source_login_test_endpoint_supports_lanzou_sdk(client, monkeypatch):
+    provider = provider_registry.get("lanzou_sdk")
+
+    monkeypatch.setattr(
+        provider,
+        "_build_authenticated_client",
+        lambda source: object(),
+    )
+
+    create_response = client.post(
+        "/api/admin/sources",
+        json={
+            "name": "lanzou-direct-source",
+            "adapter_type": "lanzou_sdk",
+            "username": "",
+            "password": "",
+            "root_folder_id": None,
+            "config": {
+                "cookie": {
+                    "ylogin": "10001",
+                    "phpdisk_info": "token-abc",
+                }
+            },
             "rate_limit_per_minute": 30,
             "request_timeout_seconds": 20,
         },

@@ -4,6 +4,7 @@ from typing import Dict
 
 from app.providers.base import SourceProvider
 from app.providers.lanzou_http import LanzouHttpProvider
+from app.providers.lanzou_sdk import LanzouSdkProvider
 from app.providers.mock_provider import MockSourceProvider
 
 
@@ -24,3 +25,4 @@ class ProviderRegistry:
 provider_registry = ProviderRegistry()
 provider_registry.register(MockSourceProvider())
 provider_registry.register(LanzouHttpProvider())
+provider_registry.register(LanzouSdkProvider())

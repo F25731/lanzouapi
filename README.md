@@ -288,3 +288,29 @@ POST /api/admin/preheat
 - `download` 在解析失败时会回退到分享页，这是最后兜底路径，不建议当成主下载路径
 - 多实例部署时建议 Redis 必开，用于分布式直链解析锁
 - OpenSearch 未配置时不影响系统运行，只是搜索会回退数据库
+## 2026-04 直连蓝奏补充
+
+当前项目新增了 `lanzou_sdk` 适配器，可以直接在管理面板里创建“直连蓝奏” source。
+
+- 推荐登录方式：Cookie
+- 备用登录方式：账号密码
+- 依赖库：`lanzou-api==2.6.10`
+
+面板中的 `lanzou_sdk` 需要优先填写：
+
+- `ylogin`
+- `phpdisk_info`
+
+获取方式建议：
+
+1. 先在浏览器登录蓝奏后台
+2. 打开开发者工具 `F12`
+3. 找到 `Application / Storage / Cookie`
+4. 读取站点中的 `ylogin` 和 `phpdisk_info`
+5. 粘贴到管理面板的“蓝奏直连”表单里
+
+说明：
+
+- `lanzou_sdk` 是直接调用 `LanZouCloud-API`，不需要你再单独部署 HTTP 适配服务
+- `lanzou_http` 仍然保留，适合你已经有自己的蓝奏解析服务时使用
+- 由于蓝奏官网策略变化较频繁，Cookie 登录通常比账号密码更稳定

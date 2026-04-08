@@ -15,8 +15,8 @@ class SourceCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     adapter_type: str = Field(default="lanzou_http", max_length=50)
     base_url: Optional[str] = None
-    username: str = Field(..., min_length=1, max_length=120)
-    password: str = Field(..., min_length=1, max_length=255)
+    username: str = Field(default="", max_length=120)
+    password: str = Field(default="", max_length=255)
     root_folder_id: Optional[str] = Field(default=None, max_length=120)
     config: Dict = Field(default_factory=dict)
     rate_limit_per_minute: int = Field(default=30, ge=1, le=600)
@@ -27,8 +27,8 @@ class SourceUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=100)
     adapter_type: Optional[str] = Field(default=None, max_length=50)
     base_url: Optional[str] = None
-    username: Optional[str] = Field(default=None, min_length=1, max_length=120)
-    password: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    username: Optional[str] = Field(default=None, max_length=120)
+    password: Optional[str] = Field(default=None, max_length=255)
     root_folder_id: Optional[str] = Field(default=None, max_length=120)
     config: Optional[Dict] = None
     is_enabled: Optional[bool] = None

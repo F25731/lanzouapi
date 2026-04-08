@@ -10,3 +10,4 @@ python-dotenv==1.0.1
 tenacity==8.2.3
 pytest==8.3.2
 PyJWT==2.9.0
+lanzou-api==2.6.10
